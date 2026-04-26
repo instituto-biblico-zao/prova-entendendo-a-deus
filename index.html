@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prova Final — Entendendo a Deus</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f3; color: #1a1a1a; min-height: 100vh; padding: 2rem 1rem; }
+  .container { max-width: 680px; margin: 0 auto; }
+  .hdr { text-align: center; background: #fff; border: 1px solid #e5e5e5; border-radius: 16px; padding: 2rem 1.5rem 1.5rem; margin-bottom: 1.5rem; }
+  .hdr h1 { font-size: 22px; font-weight: 600; color: #1a1a1a; margin-bottom: 6px; }
+  .hdr p { font-size: 14px; color: #666; }
+  .prog-wrap { background: #ebebeb; border-radius: 4px; height: 6px; margin-top: 1.25rem; }
+  .prog { background: #185FA5; height: 6px; border-radius: 4px; transition: width 0.3s; }
+  .card { background: #fff; border: 1px solid #e5e5e5; border-radius: 16px; padding: 1.75rem; margin-bottom: 1.5rem; }
+  label.field-label { display: block; font-size: 13px; font-weight: 600; color: #555; margin-bottom: 6px; }
+  .field-group { margin-bottom: 1.25rem; }
+  input[type=text], input[type=email], select { width: 100%; padding: 11px 14px; font-size: 15px; border: 1px solid #ddd; border-radius: 10px; background: #fff; color: #1a1a1a; outline: none; transition: border-color 0.15s, box-shadow 0.15s; appearance: none; }
+  input[type=text]:focus, input[type=email]:focus, select:focus { border-color: #185FA5; box-shadow: 0 0 0 3px rgba(24,95,165,0.12); }
+  .select-wrap { position: relative; }
+  .select-wrap::after { content: "▾"; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: #999; pointer-events: none; font-size: 14px; }
+  .btn-primary { background: #185FA5; border: none; border-radius: 10px; padding: 13px 28px; font-size: 15px; color: #fff; cursor: pointer; font-weight: 600; width: 100%; margin-top: 0.5rem; transition: background 0.15s; }
+  .btn-primary:hover { background: #0C447C; }
+  .btn-primary:disabled { opacity: 0.4; cursor: default; }
+  .sec-label { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #999; margin: 0 0 1rem; }
+  .qcard { background: #fff; border: 1px solid #e5e5e5; border-radius: 16px; padding: 1.5rem; margin-bottom: 1rem; }
+  .qnum { font-size: 11px; color: #aaa; font-weight: 600; margin-bottom: 8px; letter-spacing: .03em; }
+  .qtext { font-size: 16px; font-weight: 600; color: #1a1a1a; margin-bottom: 1.25rem; line-height: 1.5; }
+  .opts { display: flex; flex-direction: column; gap: 8px; }
+  .opt { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 11px 14px; font-size: 14px; color: #1a1a1a; cursor: pointer; text-align: left; transition: background .15s, border-color .15s; display: flex; align-items: flex-start; gap: 12px; width: 100%; line-height: 1.45; }
+  .opt:hover:not(:disabled) { background: #f5f5f3; }
+  .opt .ltr { font-weight: 700; min-width: 20px; color: #999; font-size: 13px; flex-shrink: 0; padding-top: 1px; }
+  .opt.selected { border-color: #185FA5; background: #EBF3FB; }
+  .opt.selected .ltr { color: #0C447C; }
+  .opt.show-correct { border-color: #3B6D11; background: #EAF3DE; }
+  .opt.show-correct .ltr { color: #27500A; }
+  .opt.wrong { border-color: #A32D2D; background: #FCEBEB; }
+  .opt.wrong .ltr { color: #791F1F; }
+  .opt:disabled { cursor: default; }
+  .feedback { font-size: 13px; margin-top: 12px; padding: 11px 14px; border-radius: 10px; display: none; line-height: 1.6; }
+  .feedback.show { display: block; }
+  .fb-correct { background: #EAF3DE; color: #27500A; }
+  .fb-wrong { background: #FCEBEB; color: #791F1F; }
+  .confirm-row { margin-top: 14px; display: none; gap: 8px; align-items: center; }
+  .confirm-row.show { display: flex; }
+  .btn-confirm { background: #185FA5; border: none; border-radius: 10px; padding: 10px 22px; font-size: 13px; color: #fff; cursor: pointer; font-weight: 600; transition: background .15s; }
+  .btn-confirm:hover { background: #0C447C; }
+  .btn-change { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 10px 18px; font-size: 13px; color: #666; cursor: pointer; transition: background .15s; }
+  .btn-change:hover { background: #f5f5f3; }
+  .nav-row { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0 1.5rem; gap: 12px; }
+  .btn-nav { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 10px 22px; font-size: 14px; color: #1a1a1a; cursor: pointer; font-weight: 500; transition: background .15s; }
+  .btn-nav:hover { background: #f5f5f3; }
+  .btn-nav:disabled { opacity: 0.35; cursor: default; }
+  .btn-submit { background: #185FA5; border: none; border-radius: 10px; padding: 11px 28px; font-size: 14px; color: #fff; cursor: pointer; font-weight: 600; transition: background .15s; }
+  .btn-submit:hover { background: #0C447C; }
+  .btn-submit:disabled { opacity: 0.4; cursor: default; }
+  .qcounter { font-size: 13px; color: #888; font-weight: 500; }
+  .res-score { background: #f5f5f3; border-radius: 16px; padding: 2.5rem 1.5rem; text-align: center; margin-bottom: 1.5rem; }
+  .score-big { font-size: 60px; font-weight: 700; line-height: 1; margin-bottom: 6px; }
+  .score-sub { font-size: 15px; color: #666; }
+  .badge { display: inline-block; padding: 6px 18px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-top: 14px; }
+  .badge-ok { background: #EAF3DE; color: #27500A; }
+  .badge-fail { background: #FCEBEB; color: #791F1F; }
+  .badge-warn { background: #FAEEDA; color: #633806; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+  .stat { background: #f5f5f3; border-radius: 10px; padding: 1rem; text-align: center; }
+  .stat-n { font-size: 26px; font-weight: 700; color: #1a1a1a; }
+  .stat-l { font-size: 12px; color: #888; margin-top: 3px; }
+  .gab-title { font-size: 16px; font-weight: 600; color: #1a1a1a; margin: 0 0 1rem; }
+  .gab-item { display: flex; align-items: flex-start; gap: 10px; padding: 11px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+  .gab-item:last-child { border-bottom: none; }
+  .gab-n { min-width: 26px; color: #aaa; font-weight: 600; flex-shrink: 0; padding-top: 1px; }
+  .gab-q { flex: 1; color: #555; line-height: 1.45; }
+  .gab-comment { font-size: 12px; color: #aaa; margin-top: 4px; }
+  .gab-res { min-width: 90px; text-align: right; flex-shrink: 0; }
+  .tag-c { color: #27500A; font-weight: 600; }
+  .tag-e { color: #791F1F; font-weight: 600; }
+  .aluno-info { background: #f5f5f3; border-radius: 12px; padding: 14px 18px; margin-bottom: 1.5rem; font-size: 14px; color: #666; line-height: 2; }
+  .aluno-info strong { color: #1a1a1a; }
+  .attempt-info { font-size: 13px; color: #888; margin-bottom: 1rem; text-align: center; }
+  .btn-retry { background: #185FA5; border: none; border-radius: 10px; padding: 12px 28px; font-size: 14px; color: #fff; cursor: pointer; font-weight: 600; margin-top: 0.5rem; transition: background .15s; }
+  .btn-retry:hover { background: #0C447C; }
+  .registro-notice { border-radius: 10px; padding: 11px 16px; font-size: 13px; margin-bottom: 1.25rem; text-align: center; font-weight: 500; }
+  .reg-sending { background: #EBF3FB; color: #185FA5; }
+  .reg-ok { background: #EAF3DE; color: #27500A; }
+  .reg-err { background: #FCEBEB; color: #791F1F; }
+  .submit-row { text-align: center; padding-bottom: 2rem; }
+  @media (max-width: 480px) {
+    body { padding: 1rem 0.75rem; }
+    .hdr h1 { font-size: 19px; }
+    .gab-res { min-width: 70px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div id="screen-id">
+    <div class="hdr">
+      <h1>Prova Final — Entendendo a Deus</h1>
+      <p>Preencha seus dados para começar</p>
+    </div>
+    <div class="card">
+      <div class="field-group">
+        <label class="field-label" for="f-nome">Nome completo</label>
+        <input type="text" id="f-nome" placeholder="Seu nome completo" oninput="checkId()">
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="f-email">E-mail</label>
+        <input type="email" id="f-email" placeholder="seu@email.com" oninput="checkId()">
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="f-turma">Turma</label>
+        <div class="select-wrap">
+          <select id="f-turma" onchange="checkId()">
+            <option value="">Selecione sua turma</option>
+            <option>Campinas</option>
+            <option>Campo Grande</option>
+            <option>Cuenca</option>
+            <option>Jundiaí</option>
+            <option>Lisboa</option>
+            <option>Maceió</option>
+            <option>Miami</option>
+            <option>Orlando</option>
+            <option>Porto</option>
+            <option>Quito</option>
+            <option>Recife</option>
+            <option>Ribeirão Preto</option>
+            <option>Santiago</option>
+            <option>Santos</option>
+            <option>São Paulo - Quinta</option>
+            <option>São Paulo - Sábado</option>
+            <option>Vale do Ribeira</option>
+            <option>Zion Online</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-primary" id="btn-start" onclick="startQuiz()" disabled>Iniciar prova</button>
+    </div>
+  </div>
+
+  <div id="screen-quiz" style="display:none">
+    <div class="hdr">
+      <h1>Prova Final — Entendendo a Deus</h1>
+      <p id="hdr-sub"></p>
+      <div class="prog-wrap"><div class="prog" id="prog" style="width:3.33%"></div></div>
+    </div>
+    <div id="q-area"></div>
+    <div class="nav-row">
+      <button class="btn-nav" id="btn-prev" onclick="goQ(-1)" disabled>Anterior</button>
+      <span class="qcounter" id="qcounter">1 / 30</span>
+      <button class="btn-nav" id="btn-next" onclick="goQ(1)">Próxima</button>
+    </div>
+    <div class="submit-row">
+      <button class="btn-submit" id="btn-submit" onclick="submitQuiz()" disabled>Finalizar prova</button>
+    </div>
+  </div>
+
+  <div id="screen-result" style="display:none"></div>
+
+</div>
+<script>
+// Sheety API — aceita POST com JSON diretamente, sem restrição de CORS
+const WEBHOOK_URL = "https://hook.us2.make.com/rwq77f3r3vxtg5bow1w8ygvgy7f79guo";
+
+const Qs = [
+  {n:1,s:"Nível fácil",t:"O que é teologia?",o:["Estudo da moral humana","Estudo da filosofia cristã","Estudo das religiões comparadas","Estudo de Deus e das verdades da fé cristã","Estudo da história da igreja"],a:3,c:"Teologia é o estudo de Deus e das verdades da fé cristã."},
+  {n:2,s:"Nível fácil",t:"Qual é uma função da teologia?",o:["Criar novas revelações","Substituir a leitura bíblica","Explicar e integrar os princípios da fé cristã","Relativizar a doutrina cristã","Produzir apenas debate acadêmico"],a:2,c:"Sua função é explicar, organizar e integrar a fé."},
+  {n:3,s:"Nível fácil",t:"O que é a Bíblia?",o:["O Livro dos livros, escrito sob inspiração divina","Um compêndio de tradições humanas","Um livro religioso entre outros","Um registro histórico sem autoridade espiritual","Um manual moral produzido pela igreja"],a:0,c:"A Bíblia é inspirada por Deus."},
+  {n:4,s:"Nível fácil",t:"Quantos livros compõem o Antigo Testamento?",o:["27","46","66","73","39"],a:4,c:"Antigo Testamento: 39 livros."},
+  {n:5,s:"Nível fácil",t:"Quantos livros compõem o Novo Testamento?",o:["21","30","39","24","27"],a:4,c:"Novo Testamento: 27 livros."},
+  {n:6,s:"Nível fácil",t:"Quais são os dois grandes eixos da mensagem bíblica?",o:["Juízo e misericórdia","Doutrina e prática","História e profecia","Lei e Evangelho","Fé e obras"],a:3,c:"Lei e Evangelho estruturam a mensagem bíblica."},
+  {n:7,s:"Nível fácil",t:"O que é o Evangelho?",o:["O conjunto dos Dez Mandamentos","A tradição apostólica oral","O mesmo que a Lei mosaica","A condenação do pecador","A boa notícia da salvação"],a:4,c:"Evangelho = boa notícia da salvação."},
+  {n:8,s:"Nível fácil",t:"Deus é visível em Sua essência?",o:["Sim, sempre","Não, Deus é espírito","Apenas no céu","Apenas em visões proféticas","Sim, para todos os homens"],a:1,c:"Deus é espírito, não visível em essência."},
+  {n:9,s:"Nível fácil",t:"Qual atributo afirma que Deus não muda?",o:["Onipotência","Santidade","Eternidade","Imutabilidade","Onisciência"],a:3,c:"Imutabilidade: Deus não muda."},
+  {n:10,s:"Nível médio",t:"O que significa dizer que a Bíblia foi escrita por inspiração divina?",o:["A igreja posterior completou o texto","O Espírito Santo guiou os autores humanos","Os autores escreveram em transe","Apenas partes são inspiradas","Deus anulou a personalidade dos autores"],a:1,c:"Inspiração envolve ação do Espírito Santo nos autores."},
+  {n:11,s:"Nível médio",t:"Qual é o propósito da Bíblia?",o:["Fornecer apenas informação histórica","Formar cultura religiosa","Manter segredos espirituais","Substituir a ação do Espírito Santo","Revelar Deus e conduzir o homem à salvação"],a:4,c:"A Bíblia revela Deus e conduz à salvação."},
+  {n:12,s:"Nível médio",t:"Como as palavras de Deus foram preservadas no povo de Israel?",o:["Por textos ocultos","Por símbolos secretos","Por escrita, ensino e transmissão contínua","Apenas por tradição oral","Apenas pelo sacerdócio"],a:2,c:"Preservação por escrita e ensino contínuo."},
+  {n:13,s:"Nível médio",t:"Qual alternativa NÃO corresponde a uma categoria teológica clássica?",o:["Teologia Litúrgica","Teologia Bíblica","Teologia Histórica","Teologia Sistemática","Teologia Prática"],a:0,c:"Teologia Litúrgica não faz parte das quatro categorias clássicas."},
+  {n:14,s:"Nível médio",t:"O que a leitura cuidadosa da Bíblia proporciona?",o:["Independência da igreja","Força, direção, sabedoria e crescimento espiritual","Apenas conhecimento intelectual","Autossuficiência espiritual","Superioridade acadêmica"],a:1,c:"Produz crescimento espiritual integral."},
+  {n:15,s:"Nível médio",t:"O que é revelação?",o:["Emoção religiosa","Tradição institucional","Descoberta filosófica","Interpretação humana de Deus","Manifestação do que estava oculto"],a:4,c:"Revelação = tornar conhecido o oculto."},
+  {n:16,s:"Nível médio",t:"O que caracteriza a mente carnal?",o:["Neutralidade moral","Plena compreensão espiritual","Sabedoria superior","Incapacidade de compreender o espiritual","Dependência da Palavra"],a:3,c:"A mente carnal não compreende o espiritual."},
+  {n:17,s:"Nível médio",t:"Como se desenvolve uma mente espiritual?",o:["Pela experiência emocional","Pela disciplina moral","Pela ação do Espírito Santo através da Palavra","Pela razão humana","Pela tradição religiosa"],a:2,c:"A mente espiritual vem da Palavra com o Espírito."},
+  {n:18,s:"Nível médio",t:"O que significa dizer que Deus é onipresente?",o:["Ele sabe tudo","Ele está em todo lugar","Ele é eterno","Ele julga tudo","Ele pode tudo"],a:1,c:"Onipresença = Deus em todo lugar."},
+  {n:19,s:"Nível médio",t:"O que significa afirmar que Deus é triúno?",o:["Três deuses independentes","Uma representação simbólica","Uma divisão de funções divinas","Três manifestações de um mesmo ser","Um só Deus em três pessoas"],a:4,c:"Um Deus em três pessoas."},
+  {n:20,s:"Nível médio",t:"Qual pessoa da Trindade se encarnou?",o:["O Pai e o Filho","O Filho","Todas igualmente","O Pai","O Espírito Santo"],a:1,c:"O Filho se encarnou."},
+  {n:21,s:"Nível médio",t:"O que são os anjos?",o:["Forças naturais","Divindades menores","Espíritos humanos","Seres simbólicos","Seres espirituais criados por Deus"],a:4,c:"Anjos são seres espirituais criados."},
+  {n:22,s:"Nível difícil",t:"Qual alternativa expressa corretamente a relação entre Lei e Evangelho?",o:["A Lei salva e o Evangelho orienta","A Lei é irrelevante","A Lei revela o pecado e o Evangelho anuncia a salvação","O Evangelho elimina a Lei","São equivalentes"],a:2,c:"Lei mostra o pecado; Evangelho salva."},
+  {n:23,s:"Nível difícil",t:"Qual é o papel do Espírito Santo no conhecimento teológico?",o:["Essencial para compreender as verdades espirituais","Opcional","Substitui o estudo","Secundário","Limitado aos dons"],a:0,c:"O Espírito é indispensável para compreensão espiritual."},
+  {n:24,s:"Nível difícil",t:"Qual é o risco de estudar teologia sem a direção do Espírito Santo?",o:["Falta de tradição","Redução ao intelectualismo vazio","Erro histórico","Perda da fé imediata","Falta de disciplina"],a:1,c:"Sem o Espírito, o estudo vira mera letra."},
+  {n:25,s:"Nível difícil",t:"Como se explica a unidade da Trindade?",o:["Três manifestações","Divisão funcional","Hierarquia divina","Um só Deus em três pessoas distintas e inseparáveis","União simbólica"],a:3,c:"Unidade na distinção das pessoas da Trindade."},
+  {n:26,s:"Nível difícil",t:"Quem era Lúcifer antes da queda?",o:["Um arcanjo comum","Um símbolo do mal","Um espírito humano","Um homem exaltado","Um querubim de alta posição"],a:4,c:"Lúcifer era um querubim exaltado."},
+  {n:27,s:"Nível difícil",t:"Qual foi a consequência da rebelião de Lúcifer?",o:["Foi restaurado","Tornou-se Satanás e levou anjos consigo","Foi destruído","Permaneceu no céu sem autoridade","Tornou-se símbolo do mal"],a:1,c:"Tornou-se Satanás e arrastou anjos."},
+  {n:28,s:"Nível difícil",t:"Qual é o papel dos anjos?",o:["Intermediar a salvação","Substituir o Espírito Santo","Receber adoração","Governar a igreja","Servir a Deus e ministrar aos homens"],a:4,c:"Servem a Deus e aos salvos."},
+  {n:29,s:"Nível difícil",t:"Qual afirmação sobre a criação está correta?",o:["O homem surgiu por acaso","A Bíblia não trata do tema","A criação é simbólica","Deus criou diretamente todas as coisas","A evolução é comprovada"],a:3,c:"Deus é o criador direto de tudo."},
+  {n:30,s:"Nível difícil",t:"O que significa ser imagem e semelhança de Deus?",o:["Poder absoluto","Igualdade física","Semelhança moral, racional e espiritual","Independência total","Natureza divina plena"],a:2,c:"Reflete razão, moralidade e espiritualidade."}
+];
+
+const L = ["A","B","C","D","E"];
+let aluno = { nome:'', email:'', turma:'' };
+let cur = 0, ans = new Array(30).fill(-1), attempt = 1,
+    revealed = new Array(30).fill(false), pending = -1;
+
+function checkId() {
+  aluno.nome  = document.getElementById('f-nome').value.trim();
+  aluno.email = document.getElementById('f-email').value.trim();
+  aluno.turma = document.getElementById('f-turma').value;
+  document.getElementById('btn-start').disabled =
+    !(aluno.nome && aluno.email && aluno.turma);
+}
+function startQuiz() {
+  document.getElementById('screen-id').style.display = 'none';
+  document.getElementById('screen-quiz').style.display = 'block';
+  document.getElementById('hdr-sub').textContent =
+    `${aluno.nome} · ${aluno.turma} · Tentativa ${attempt} de 2`;
+  renderQ();
+}
+function renderQ() {
+  const q = Qs[cur];
+  const prevS = cur > 0 ? Qs[cur-1].s : null;
+  let html = '';
+  if (q.s !== prevS) html += `<div class="sec-label">${q.s}</div>`;
+  html += `<div class="qcard"><div class="qnum">QUESTÃO ${q.n} DE 30</div>
+    <div class="qtext">${q.t}</div><div class="opts">`;
+  const done = revealed[cur];
+  q.o.forEach((o, i) => {
+    let cls = 'opt';
+    if (done) {
+      if (i === q.a) cls += ' show-correct';
+      else if (ans[cur] === i) cls += ' wrong';
+    } else {
+      if (pending === i) cls += ' selected';
+    }
+    html += `<button class="${cls}" ${done?'disabled':''} onclick="selectOpt(${i})">
+      <span class="ltr">${L[i]}</span><span>${o}</span></button>`;
+  });
+  html += '</div>';
+  if (!done) {
+    html += `<div class="confirm-row ${pending !== -1 ? 'show' : ''}">
+      <button class="btn-confirm" onclick="confirmAnswer()">Confirmar resposta</button>
+      <button class="btn-change" onclick="clearPending()">Trocar alternativa</button>
+    </div>`;
+  }
+  if (done) {
+    const ok = ans[cur] === q.a;
+    const wrongMsg = !ok ? ` A alternativa correta é <strong>${L[q.a]}) ${q.o[q.a]}</strong>. ` : ' ';
+    html += `<div class="feedback show ${ok?'fb-correct':'fb-wrong'}">
+      ${ok ? 'Resposta correta! ' : 'Resposta incorreta.' + wrongMsg}${q.c}</div>`;
+  }
+  html += '</div>';
+  document.getElementById('q-area').innerHTML = html;
+  document.getElementById('qcounter').textContent = `${cur+1} / 30`;
+  document.getElementById('prog').style.width = ((cur+1)/30*100).toFixed(1)+'%';
+  document.getElementById('btn-prev').disabled = cur === 0;
+  document.getElementById('btn-next').disabled = cur === 29;
+  document.getElementById('btn-submit').disabled = !ans.every(a => a !== -1);
+}
+function selectOpt(i)   { if (revealed[cur]) return; pending = i; renderQ(); }
+function clearPending() { pending = -1; renderQ(); }
+function confirmAnswer() {
+  if (pending === -1 || revealed[cur]) return;
+  ans[cur] = pending; revealed[cur] = true; pending = -1;
+  renderQ();
+  document.getElementById('btn-submit').disabled = !ans.every(a => a !== -1);
+}
+function goQ(d) { pending = -1; cur = Math.max(0,Math.min(29,cur+d)); renderQ(); }
+
+async function submitQuiz() {
+  if (!ans.every(a => a !== -1)) return;
+  let correct = 0;
+  Qs.forEach((q,i) => { if (ans[i] === q.a) correct++; });
+  const score    = parseFloat((correct/30*10).toFixed(1));
+  const approved = score >= 7;
+  const canRetry = !approved && attempt === 1;
+  const usedBoth = !approved && attempt === 2;
+
+  document.getElementById('screen-quiz').style.display = 'none';
+  const rs = document.getElementById('screen-result');
+  rs.style.display = 'block';
+
+  let gabHtml = '';
+  Qs.forEach((q,i) => {
+    const ok = ans[i] === q.a;
+    gabHtml += `<div class="gab-item">
+      <span class="gab-n">${q.n}.</span>
+      <span class="gab-q">${q.t}<div class="gab-comment">${q.c}</div></span>
+      <span class="gab-res">${ok
+        ? `<span class="tag-c">Certo (${L[q.a]})</span>`
+        : `<span class="tag-e">Errou: ${L[ans[i]]} / Correta: ${L[q.a]}</span>`}
+      </span></div>`;
+  });
+
+  rs.innerHTML = `
+    <div class="hdr"><h1>Resultado — Entendendo a Deus</h1>
+      <p>${aluno.turma} · Tentativa ${attempt} de 2</p></div>
+    <div class="aluno-info">
+      <strong>Aluno:</strong> ${aluno.nome}<br>
+      <strong>E-mail:</strong> ${aluno.email}<br>
+      <strong>Turma:</strong> ${aluno.turma}<br>
+      <strong>Tentativa:</strong> ${attempt} de 2
+    </div>
+    <div class="res-score">
+      <div class="score-big" style="color:${approved?'#27500A':'#791F1F'}">${score.toFixed(1)}</div>
+      <div class="score-sub">${correct} acertos de 30 questões</div>
+      <div><span class="badge ${approved?'badge-ok':canRetry?'badge-warn':'badge-fail'}">
+        ${approved?'Aprovado':'Reprovado'}</span></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-n" style="color:#27500A">${correct}</div><div class="stat-l">Acertos</div></div>
+      <div class="stat"><div class="stat-n" style="color:#791F1F">${30-correct}</div><div class="stat-l">Erros</div></div>
+      <div class="stat"><div class="stat-n">${score.toFixed(1)}</div><div class="stat-l">Nota final</div></div>
+    </div>
+    ${canRetry ? `<div style="text-align:center;margin-bottom:1.5rem">
+      <p class="attempt-info">Você ainda tem <strong>1 tentativa restante</strong>.</p>
+      <button class="btn-retry" onclick="retryQuiz()">Tentar novamente</button></div>` : ''}
+    ${usedBoth ? `<p class="attempt-info">Você utilizou as 2 tentativas disponíveis.</p>` : ''}
+    <div class="registro-notice reg-sending" id="reg-status">Registrando resultado na planilha...</div>
+    <div class="card" style="margin-top:1rem">
+      <div class="gab-title">Gabarito comentado</div>${gabHtml}</div>`;
+
+  // Envia para o Sheety via POST com JSON
+  try {
+    const agora = new Date();
+    const dataHora = agora.toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'});
+
+    const payload = {
+      dataHora:  dataHora,
+      nome:      aluno.nome,
+      email:     aluno.email,
+      turma:     aluno.turma,
+      tentativa: `${attempt} de 2`,
+      nota:      score.toFixed(1),
+      situacao:  approved ? 'APROVADO' : 'REPROVADO',
+      acertos:   `${correct}`
+    };
+
+    const resp = await fetch(WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const el = document.getElementById('reg-status');
+    if (resp.ok) {
+      el.className = 'registro-notice reg-ok';
+      el.textContent = 'Resultado registrado na planilha com sucesso.';
+    } else {
+      throw new Error('Status ' + resp.status);
+    }
+  } catch(e) {
+    const el = document.getElementById('reg-status');
+    if (el) {
+      el.className = 'registro-notice reg-err';
+      el.textContent = 'Não foi possível registrar. Entre em contato com atendimento@escolazao.com.br.';
+    }
+  }
+}
+
+function retryQuiz() {
+  attempt = 2; cur = 0; pending = -1;
+  ans = new Array(30).fill(-1);
+  revealed = new Array(30).fill(false);
+  document.getElementById('screen-result').style.display = 'none';
+  document.getElementById('screen-quiz').style.display = 'block';
+  document.getElementById('hdr-sub').textContent =
+    `${aluno.nome} · ${aluno.turma} · Tentativa ${attempt} de 2`;
+  renderQ();
+}
+</script>
+</body>
+</html>
